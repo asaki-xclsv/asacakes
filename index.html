@@ -3,20 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SYSTEM.ADM | High-End Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-red: #cc0000;
-            --accent-red: #ff1a1a;
             --bg-deep: #050505;
             --bg-card: rgba(18, 18, 18, 0.95);
             --border-color: rgba(204, 0, 0, 0.3);
             --text-main: #f5f5f5;
             --text-dim: #a0a0a0;
-            --glass: rgba(255, 255, 255, 0.03);
         }
 
         * { box-sizing: border-box; user-select: none; }
@@ -27,12 +22,6 @@
         }
 
         #particle-canvas { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 0; }
-
-        .bg-blob {
-            position: fixed; width: 400px; height: 400px;
-            background: radial-gradient(circle, rgba(204, 0, 0, 0.1) 0%, rgba(0,0,0,0) 70%);
-            z-index: -1; filter: blur(80px);
-        }
 
         .auth-container { display: flex; justify-content: center; align-items: center; height: 100vh; position: relative; z-index: 10; }
 
@@ -62,134 +51,189 @@
 
         #settings-modal {
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 450px; background: #111; border: 1px solid var(--primary-red); border-radius: 12px;
-            z-index: 1000; animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            width: 300px; background: #111; border: 2px solid var(--primary-red); border-radius: 12px;
+            z-index: 1000; animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); overflow: hidden;
         }
 
         @keyframes modalPop { from { opacity: 0; transform: translate(-50%, -40%) scale(0.95); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
         
-        /* Modal header styled for "User Profile" title with drag handle */
         .modal-header { 
-            background: #181818; padding: 15px 20px; display: flex; 
+            background: #181818; padding: 1px 15px; display: flex; 
             justify-content: space-between; align-items: center; 
-            border-bottom: 1px solid #222; cursor: move; 
+            border-bottom: 2px solid var(--primary-red); cursor: move; 
         }
-        .modal-header h4 { margin: 0; color: var(--text-main); font-weight: 600; }
+
+        .avatar-upload-circle {
+            width: 80px; height: 80px; border-radius: 50%; background: #222;
+            margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; position: relative; overflow: hidden; border: 2px solid #333;
+        }
+        .avatar-upload-circle img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-overlay {
+            position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.6);
+            display: none; align-items: center; justify-content: center; font-size: 0.7rem;
+        }
+        .avatar-upload-circle:hover .avatar-overlay { display: flex; }
     </style>
 </head>
 <body>
 
-    <div class="bg-blob" style="top: -100px; left: -100px;"></div>
-    <div class="bg-blob" style="bottom: -100px; right: -100px;"></div>
     <canvas id="particle-canvas"></canvas>
 
     <div id="auth-view" class="auth-container">
         <div class="auth-card">
-            <h1 id="auth-title">ADMIN ACCESS</h1>
+            <h1>ADMIN ACCESS</h1>
             <div class="input-group"><label>Username</label><input type="text" id="username"></div>
             <div class="input-group"><label>Password</label><input type="password" id="password"></div>
-            <button class="btn-primary" onclick="handleAuth()" id="auth-btn">LOGIN</button>
-            <span class="toggle-link" id="toggle-text" style="cursor:pointer; display:block; margin-top:1rem; color:var(--text-dim);" onclick="toggleMode()">Initialize Owner Registration</span>
+            <button class="btn-primary" onclick="handleAuth()">LOGIN</button>
         </div>
     </div>
 
     <div id="dashboard">
         <div class="sidebar">
-            <h2>SYSTEM.ADM</h2>
+            <h2>ASACAKES</h2>
             <div class="user-panel">
                 <img id="sidebar-avatar" src="https://i.imgur.com/6VBx3io.png" class="avatar-img">
                 <div>
-                    <div id="u-display-name" style="font-weight:600;">Owner</div>
-                    <div style="font-size: 0.7rem; color: #888;">Status: Connected</div>
+                    <div id="u-display-name" style="font-weight:600;">Drew</div>
+                    <div style="font-size: 0.7rem; color: #888;">Status: Online</div>
                 </div>
                 <div class="settings-trigger" onclick="toggleModal()" style="cursor:pointer; margin-left:auto;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="3"></circle>
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2 2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                     </svg>
                 </div>
             </div>
         </div>
         <div class="main-content" style="padding: 4rem;">
-            <h1>Welcome, <span id="welcome-name">User</span></h1>
+            <h1>Welcome, <span id="welcome-name">Drew</span></h1>
         </div>
     </div>
 
     <div id="settings-modal">
         <div class="modal-header" id="modal-handle">
-            <h4>User Profile</h4>
+            <h4 style="font-size: 0.9rem;">User Profile</h4>
             <span style="cursor:pointer;" onclick="toggleModal()">✕</span>
         </div>
-        <div class="modal-body" style="padding: 25px;">
-            <label>Update Avatar</label>
-            <input type="file" id="avatar-upload" accept="image/*" onchange="updateAvatarPreview()" style="margin-bottom:10px;">
-            <label>Update Password</label>
-            <input type="password" id="new-password" style="margin-bottom:15px;">
-            <button class="btn-primary" onclick="saveSettings()">Apply Changes</button>
-            <button onclick="logout()" style="margin-top:10px; width:100%; border:1px solid #cc0000; background:none; color:white; padding:10px;">Logout</button>
+        <div class="modal-body" style="padding: 15px;">
+            <div class="avatar-upload-circle" onclick="document.getElementById('file-input').click()">
+                <img id="modal-avatar" src="https://i.imgur.com/6VBx3io.png">
+                <div class="avatar-overlay">Change</div>
+            </div>
+            <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="previewAvatar(this)">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top:10px;">
+                <label style="color:var(--text-dim); font-size: 0.7rem;">Update Password</label>
+                <button onclick="togglePasswordSection()" style="background:none; border:1px solid #cc0000; color:#cc0000; font-size:0.6rem; cursor:pointer; padding:2px 5px;">Change</button>
+            </div>
+            
+            <div id="password-change-section" style="display:none; margin-top:10px;">
+                <input type="password" id="curr-password" placeholder="Current Password" style="margin-bottom:10px; padding: 10px;">
+                <input type="password" id="new-password" placeholder="New Password" style="margin-bottom:10px; padding: 10px;">
+            </div>
+
+            <button class="btn-primary" style="padding: 10px; margin-top: 10px;" onclick="saveSettings()">Apply Changes</button>
+            <button onclick="logout()" style="margin-top:10px; width:100%; border:1px solid #cc0000; background:none; color:white; padding:8px; cursor:pointer; font-size: 0.8rem;">Logout</button>
         </div>
     </div>
 
     <script>
+
+    const titles = ["Asaki", "Asacakes Dashboard", "Developed by Drew"];
+    let titleIndex = 0;
+    let charIndex = 0;
+    let typing = true; // true = typing, false = deleting
+
+    function typeTitle() {
+      const currentTitle = titles[titleIndex];
+      
+      if (typing) {
+        document.title = currentTitle.substring(0, charIndex + 1);
+        charIndex++;
+        if (charIndex === currentTitle.length) {
+          typing = false; // start deleting
+          setTimeout(typeTitle, 1000); // wait 1 second before deleting
+          return;
+        }
+      } else {
+        document.title = currentTitle.substring(0, charIndex - 1);
+        charIndex--;
+        if (charIndex === 0) {
+          typing = true; // start typing next
+          titleIndex = (titleIndex + 1) % titles.length;
+        }
+      }
+      setTimeout(typeTitle, typing ? 300 : 100); // typing speed / deleting speed
+    }
+
+    typeTitle();
+
+
+
+
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        let particles = [];
-        class Particle {
-            constructor(x, y) { this.x = x; this.y = y; this.size = Math.random() * 3 + 1; this.life = 1.0; }
-            update() { this.life -= 0.02; }
-            draw() { ctx.fillStyle = `rgba(204, 0, 0, ${this.life})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+        
+        // --- AFK Logic ---
+        const AFK_LIMIT = 5 * 60 * 1000;
+        let logoutTimer;
+        function resetTimer() {
+            clearTimeout(logoutTimer);
+            logoutTimer = setTimeout(logout, AFK_LIMIT);
         }
-        window.addEventListener('mousemove', (e) => particles.push(new Particle(e.x, e.y)));
-        function animateParticles() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles = particles.filter(p => p.life > 0); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animateParticles); }
-        animateParticles();
 
-        let isRegistering = false;
-        function toggleMode() {
-            isRegistering = !isRegistering;
-            document.getElementById('auth-title').innerText = isRegistering ? "OWNER REGISTRATION" : "ADMIN ACCESS";
-            document.getElementById('auth-btn').innerText = isRegistering ? "INITIALIZE" : "LOGIN";
-        }
+        window.onload = () => {
+            if (sessionStorage.getItem('isLoggedIn') === 'true') {
+                document.getElementById('auth-view').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'grid';
+                resetTimer();
+            }
+        };
+
+        window.onmousemove = resetTimer;
+        window.onkeypress = resetTimer;
+        window.onclick = resetTimer;
 
         function handleAuth() {
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
-            if (isRegistering) {
-                if (localStorage.getItem('adminExists')) return alert("Already registered.");
-                localStorage.setItem('adminUser', user); localStorage.setItem('adminPass', pass);
-                localStorage.setItem('adminExists', true); location.reload();
-            } else {
-                if (user === localStorage.getItem('adminUser') && pass === localStorage.getItem('adminPass')) {
-                    document.getElementById('auth-view').style.display = 'none';
-                    document.getElementById('dashboard').style.display = 'grid';
-                    document.getElementById('u-display-name').innerText = user;
-                    document.getElementById('welcome-name').innerText = user;
-                } else alert("Invalid Credentials.");
+            if (document.getElementById('username').value === "Drew" && document.getElementById('password').value === "asaki17") {
+                sessionStorage.setItem('isLoggedIn', 'true');
+                document.getElementById('auth-view').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'grid';
+                resetTimer();
+            } else { alert("Invalid Credentials."); }
+        }
+
+        function togglePasswordSection() {
+            const section = document.getElementById('password-change-section');
+            section.style.display = (section.style.display === 'none') ? 'block' : 'none';
+        }
+
+        function previewAvatar(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('modal-avatar').src = e.target.result;
+                    document.getElementById('sidebar-avatar').src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
             }
         }
 
         const modal = document.getElementById('settings-modal');
         function toggleModal() { modal.style.display = (modal.style.display === 'block') ? 'none' : 'block'; }
         
-        function saveSettings() {
-            const newPass = document.getElementById('new-password').value;
-            if(newPass) localStorage.setItem('adminPass', newPass);
-            const file = document.getElementById('avatar-upload').files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = (e) => { localStorage.setItem('userAvatar', e.target.result); document.getElementById('sidebar-avatar').src = e.target.result; };
-                reader.readAsDataURL(file);
-            }
-            alert("Settings Updated"); toggleModal();
-        }
-
-        window.onload = () => { if(localStorage.getItem('adminExists')) document.getElementById('toggle-text').style.display = 'none'; };
-        function logout() { location.reload(); }
+        function saveSettings() { alert("Settings Updated"); toggleModal(); }
+        function logout() { sessionStorage.removeItem('isLoggedIn'); location.reload(); }
 
         const handle = document.getElementById('modal-handle');
         let isDragging = false;
         handle.onmousedown = (e) => { isDragging = true; };
-        document.onmousemove = (e) => { if(isDragging) { modal.style.left = e.clientX + 'px'; modal.style.top = e.clientY + 'px'; } };
+        document.onmousemove = (e) => { 
+            if(isDragging) { modal.style.left = e.clientX + 'px'; modal.style.top = e.clientY + 'px'; }
+            resetTimer();
+        };
         document.onmouseup = () => { isDragging = false; };
     </script>
 </body>
